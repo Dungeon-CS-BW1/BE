@@ -14,7 +14,7 @@ import json
 @csrf_exempt
 @api_view(["GET"])
 def initialize(request):
-    print('***************************checking response in get request***********************', request)
+    print('***************************checking response in get request***********************', request.user.player.currentRoom)
     user = request.user
     player = user.player
     player_id = player.id
