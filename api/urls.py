@@ -1,4 +1,4 @@
-from django.urls import include, path, re_path
+from django.urls import include, path
 from django.conf.urls import url
 from rest_framework.authtoken import views
 
