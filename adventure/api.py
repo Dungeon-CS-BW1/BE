@@ -23,8 +23,18 @@ def initialize(request):
     players = room.playerNames(player_id)
     return JsonResponse({'uuid': uuid, 'name':player.user.username, 'title':room.title, 'description':room.description, 'players':players}, safe=True)
 
+@csrf_exempt
+@api_view(["GET"])
+def rooms(request):
+    user = request.user
+    room = user.room
+    print(f'*******************************{room.title}***********************************')
 
-# @csrf_exempt
+    return JsonResponse({'roomlist': room.roomlist})
+
+
+
+@csrf_exempt
 @api_view(["POST"])
 def move(request):
     dirs={"n": "north", "s": "south", "e": "east", "w": "west"}
@@ -59,7 +69,6 @@ def move(request):
     else:
         players = room.playerNames(player_id)
         return JsonResponse({'name':player.user.username, 'title':room.title, 'description':room.description, 'players':players, 'error_msg':"You cannot move that way."}, safe=True)
-
 
 @csrf_exempt
 @api_view(["POST"])

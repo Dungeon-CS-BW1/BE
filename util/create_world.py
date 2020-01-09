@@ -21,11 +21,13 @@ r_5 = Room(title="Treasure Chamber", description="""You've found the long-lost t
 chamber! Sadly, it has already been completely emptied by
 earlier adventurers. The only exit is to the south.""")
 
-r_1.save()
-r_2.save()
-r_3.save()
-r_4.save()
-r_5.save()
+# r_1.save()
+# r_2.save()
+# r_3.save()
+# r_4.save()
+# r_5.save()
+
+print(r_1.title)
 
 # Link rooms together
 r_1.connectRooms(r_2, "n")
