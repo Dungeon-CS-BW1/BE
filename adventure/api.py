@@ -36,6 +36,7 @@ def rooms(request):
 
     # return JsonResponse({'roomlist': room.roomlist})
     return HttpResponse(rooms, content_type="application/json")
+    
 
 
 
