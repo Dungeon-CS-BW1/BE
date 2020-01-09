@@ -8,20 +8,21 @@ import uuid
 class Room(models.Model):
     title = models.CharField(max_length=50, default="DEFAULT TITLE")
     description = models.CharField(max_length=500, default="DEFAULT DESCRIPTION")
+    x = models.IntegerField(default=0)
+    y = models.IntegerField(default=0)
     n_to = models.IntegerField(default=0)
     s_to = models.IntegerField(default=0)
     e_to = models.IntegerField(default=0)
     w_to = models.IntegerField(default=0)
-    x = models.IntegerField(default=0)
-    y = models.IntegerField(default=0)
     def connectRooms(self, connecting_room, direction):
         '''
         Connect two rooms in the given n/s/e/w direction
         '''
         reverse_dirs = {"n": "s", "s": "n", "e": "w", "w": "e"}
         reverse_dir = reverse_dirs[direction]
-        setattr(self, f"{direction}_to", connecting_room)
-        setattr(connecting_room, f"{reverse_dir}_to", self)
+        setattr(self, f"{direction}_to", connecting_room.id)
+        setattr(connecting_room, f"{reverse_dir}_to", self.id)
+        self.save()
         # destinationRoomID = destinationRoom.id
         # try:
         #     destinationRoom = Room.objects.get(id=destinationRoomID)
