@@ -51,18 +51,35 @@ def move(request):
     data = json.loads(request.body)
     direction = data['direction']
     room = player.room()
+    # print('*********************************************')
+    # rE = Room.objects.get(id=room.e_to)
+    # print(rE.x)
+    # print('*********************************************')
     nextRoomID = None
     if direction == "n":
         nextRoomID = room.n_to
+        rN = Room.objects.get(id=nextRoomID)
+        player.x = rN.x
+        player.y = rN.y
     elif direction == "s":
         nextRoomID = room.s_to
+        rS = Room.objects.get(id=nextRoomID)
+        player.x = rS.x
+        player.y = rS.y
     elif direction == "e":
         nextRoomID = room.e_to
+        rE = Room.objects.get(id=nextRoomID)
+        player.x = rE.x
+        player.y = rE.y
     elif direction == "w":
         nextRoomID = room.w_to
-    if nextRoomID is not None and nextRoomID > 0:
+        rW = Room.objects.get(id=nextRoomID)
+        player.x = rW.x
+        player.y = rW.y
+    if nextRoomID is not None and nextRoomID > 0 and player.stamina > 0:
         nextRoom = Room.objects.get(id=nextRoomID)
         player.currentRoom=nextRoomID
+        player.move()
         player.save()
         players = nextRoom.playerNames(player_id)
         currentPlayerUUIDs = room.playerUUIDs(player_id)
@@ -71,7 +88,10 @@ def move(request):
         #     pusher.trigger(f'p-channel-{p_uuid}', u'broadcast', {'message':f'{player.user.username} has walked {dirs[direction]}.'})
         # for p_uuid in nextPlayerUUIDs:
         #     pusher.trigger(f'p-channel-{p_uuid}', u'broadcast', {'message':f'{player.user.username} has entered from the {reverse_dirs[direction]}.'})
-        return JsonResponse({'name':player.user.username, 'title':nextRoom.title, 'description':nextRoom.description, 'players':players, 'error_msg':""}, safe=True)
+        return JsonResponse({'name':player.user.username, 'title':nextRoom.title, 'description':nextRoom.description, 'players':players, 'stamina':player.stamina, 'error_msg':""}, safe=True)
+    elif player.stamina == 0:
+        players = room.playerNames(player_id)
+        return JsonResponse({'name':player.user.username, 'title':room.title, 'description':room.description, 'players':players, 'error_msg':"You are out of stamina and can't move....."}, safe=True)
     else:
         players = room.playerNames(player_id)
         return JsonResponse({'name':player.user.username, 'title':room.title, 'description':room.description, 'players':players, 'error_msg':"You cannot move that way."}, safe=True)

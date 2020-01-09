@@ -53,9 +53,14 @@ class Player(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     currentRoom = models.IntegerField(default=0)
     uuid = models.UUIDField(default=uuid.uuid4, unique=True)
+    stamina = models.IntegerField(default=100)
+    x = models.IntegerField(default=0)
+    y = models.IntegerField(default=0)
     def initialize(self):
         if self.currentRoom == 0:
             self.currentRoom = Room.objects.first().id
+            self.x = Room.objects.first().x
+            self.y = Room.objects.first().y
             self.save()
     def room(self):
         try:
@@ -63,6 +68,13 @@ class Player(models.Model):
         except Room.DoesNotExist:
             self.initialize()
             return self.room()
+    def move(self):
+        self.stamina -= 1
+        self.save()
+    def eat(self):
+        self.stamina += 5
+        self.save()
+
 
 @receiver(post_save, sender=User)
 def create_user_player(sender, instance, created, **kwargs):
