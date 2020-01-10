@@ -75,6 +75,26 @@ class Player(models.Model):
         self.stamina += 5
         self.save()
 
+class Item(models.Model):
+    name = models.CharField(max_length=100, default="default item")
+    staminaPoints = models.IntegerField(default=5)
+    player_id = models.IntegerField(default=0)
+    room_id = models.IntegerField(default=0)
+    def pick_up(self, p_id):
+        self.room_id = 200000000
+        self.player_id = p_id
+        self.save()
+    def drop_it(self, r_id):
+        self.room_id = r_id
+        self.player_id = 0
+        self.save()
+    def eat_it(self, r_id, p_id):
+        self.room_id = 2000000
+        self.player_id = 0
+        self.save()
+    
+
+
 
 @receiver(post_save, sender=User)
 def create_user_player(sender, instance, created, **kwargs):

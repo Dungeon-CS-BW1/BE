@@ -91,13 +91,65 @@ def move(request):
         return JsonResponse({'name':player.user.username, 'title':nextRoom.title, 'description':nextRoom.description, 'players':players, 'stamina':player.stamina, 'error_msg':""}, safe=True)
     elif player.stamina == 0:
         players = room.playerNames(player_id)
-        return JsonResponse({'name':player.user.username, 'title':room.title, 'description':room.description, 'players':players, 'error_msg':"You are out of stamina and can't move....."}, safe=True)
+        return JsonResponse({'name':player.user.username, 'title':room.title, 'description':room.description, 'players':players, 'stamina':player.stamina, 'error_msg':"You are out of stamina and can't move....."}, safe=True)
     else:
         players = room.playerNames(player_id)
-        return JsonResponse({'name':player.user.username, 'title':room.title, 'description':room.description, 'players':players, 'error_msg':"You cannot move that way."}, safe=True)
+        return JsonResponse({'name':player.user.username, 'title':room.title, 'description':room.description, 'players':players, 'stamina':player.stamina, 'error_msg':"You cannot move that way."}, safe=True)
 
 @csrf_exempt
 @api_view(["POST"])
 def say(request):
     # IMPLEMENT
     return JsonResponse({'error':"Not yet implemented"}, safe=True, status=500)
+
+
+@csrf_exempt
+@api_view(["POST"])
+def pick_up(request):
+    fruit = {'apple', 'orange', 'banana'}
+    user = request.user
+    player = request.user.player
+    player_id = player.id
+    data = json.loads(request.body)
+    item_id = data['item_id']
+    # room_id = data['room_id']
+    fruit = Item.objects.get(id=item_id)
+    fruit.pick_up(player_id)
+    return JsonResponse({'item_id': fruit.id, 'room_id': fruit.room_id, 'name':fruit.name, 'stamina': fruit.staminaPoints, 'error':""}, safe=True)
+
+@csrf_exempt
+@api_view(["POST"])
+def drop(request):
+  fruit = {'apple', 'orange', 'banana'}
+  user = request.user
+  player = request.user.player
+  data = json.loads(request.body)
+  room_id = data['room_id']
+  item_id = data['item_id']
+  fruit = Item.objects.get(id=item_id)
+  fruit.drop_it(room_id)
+  return JsonResponse({'item_id':fruit.id, 'room_id':fruit.room_id, 'name':fruit.name, 'stamina':fruit.staminaPoints, 'error':""}, safe=True)
+
+@csrf_exempt
+@api_view(["POST"])
+def eat(request):
+  fruit = {'apple', 'orange', 'banana'}
+  user = request.user
+  player = request.user.player
+  data = json.loads(request.body)
+  player_id = player.id
+  room_id = data['room_id']
+  item_id = data['item_id']
+  fruit = Item.objects.get(id=item_id)
+  fruit.eat_it(room_id, player_id)
+  return JsonResponse({'message':"You ate the item!", 'room_id':fruit.room_id, 'player_id':fruit.player_id, 'error':""}, safe=True)
+
+@csrf_exempt
+@api_view(["GET"])
+def items(request):
+    print('***************************checking response in get request***********************', request.user.player.currentRoom)
+    user = request.user
+    player = user.player
+    player_id = player.id
+    item = serializers.serialize('json', Item.objects.all()) 
+    return HttpResponse(item, content_type="application/json")
