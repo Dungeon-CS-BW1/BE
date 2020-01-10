@@ -23,7 +23,7 @@ def initialize(request):
     uuid = player.uuid
     room = player.room()
     players = room.playerNames(player_id)
-    return JsonResponse({'uuid': uuid, 'name':player.user.username, 'title':room.title, 'description':room.description, 'players':players}, safe=True)
+    return JsonResponse({'uuid': uuid, 'name':player.user.username, 'title':room.title, 'description':room.description, 'players':players, 'x':room.x, 'y':room.y}, safe=True)
 
 @csrf_exempt
 @api_view(["GET"])
@@ -50,6 +50,8 @@ def move(request):
     player_uuid = player.uuid
     data = json.loads(request.body)
     direction = data['direction']
+    play_x = data['x']
+    play_y = data['y']
     room = player.room()
     # print('*********************************************')
     # rE = Room.objects.get(id=room.e_to)
@@ -58,24 +60,20 @@ def move(request):
     nextRoomID = None
     if direction == "n":
         nextRoomID = room.n_to
-        rN = Room.objects.get(id=nextRoomID)
-        player.x = rN.x
-        player.y = rN.y
+        player.x = play_x
+        player.y = play_y
     elif direction == "s":
         nextRoomID = room.s_to
-        rS = Room.objects.get(id=nextRoomID)
-        player.x = rS.x
-        player.y = rS.y
+        player.x = play_x
+        player.y = play_y
     elif direction == "e":
         nextRoomID = room.e_to
-        rE = Room.objects.get(id=nextRoomID)
-        player.x = rE.x
-        player.y = rE.y
+        player.x = play_x
+        player.y = play_y
     elif direction == "w":
         nextRoomID = room.w_to
-        rW = Room.objects.get(id=nextRoomID)
-        player.x = rW.x
-        player.y = rW.y
+        player.x = play_x
+        player.y = play_y
     if nextRoomID is not None and nextRoomID > 0 and player.stamina > 0:
         nextRoom = Room.objects.get(id=nextRoomID)
         player.currentRoom=nextRoomID
@@ -88,10 +86,11 @@ def move(request):
         #     pusher.trigger(f'p-channel-{p_uuid}', u'broadcast', {'message':f'{player.user.username} has walked {dirs[direction]}.'})
         # for p_uuid in nextPlayerUUIDs:
         #     pusher.trigger(f'p-channel-{p_uuid}', u'broadcast', {'message':f'{player.user.username} has entered from the {reverse_dirs[direction]}.'})
-        return JsonResponse({'name':player.user.username, 'title':nextRoom.title, 'description':nextRoom.description, 'players':players, 'stamina':player.stamina, 'error_msg':""}, safe=True)
+        return JsonResponse({'name':player.user.username, 'title':nextRoom.title, 'description':nextRoom.description, 'players':players, 'stamina':player.stamina, 'x': player.x, 'y':player.y, 'error_msg':""}, safe=True)
     elif player.stamina == 0:
         players = room.playerNames(player_id)
-        return JsonResponse({'name':player.user.username, 'title':room.title, 'description':room.description, 'players':players, 'stamina':player.stamina, 'error_msg':"You are out of stamina and can't move....."}, safe=True)
+        player.reset_player()
+        return JsonResponse({'name':player.user.username, 'title':room.title, 'description':room.description, 'players':players, 'stamina':player.stamina, 'x': player.x, 'y': player.y,'error_msg':""}, safe=True)
     else:
         players = room.playerNames(player_id)
         return JsonResponse({'name':player.user.username, 'title':room.title, 'description':room.description, 'players':players, 'stamina':player.stamina, 'error_msg':"You cannot move that way."}, safe=True)

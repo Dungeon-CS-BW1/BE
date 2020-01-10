@@ -74,6 +74,12 @@ class Player(models.Model):
     def eat(self):
         self.stamina += 5
         self.save()
+    def reset_player(self):
+        self.currentRoom = Room.objects.first().id
+        self.x = 0
+        self.y = 0
+        self.stamina = 100
+        self.save()
 
 class Item(models.Model):
     name = models.CharField(max_length=100, default="default item")
